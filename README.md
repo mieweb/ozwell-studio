@@ -2,6 +2,29 @@
 
 A Docker container image that provides a complete web-based development environment — terminal, IDE, AI-powered tooling, and a live preview of your application — all accessible through a unified browser interface on a single port.
 
+## Quick Start
+
+Pull the image from GitHub Container Registry:
+
+```bash
+# Latest stable release
+docker pull ghcr.io/mieweb/ozwell-studio:latest
+
+# Bleeding edge (latest commit on main)
+docker pull ghcr.io/mieweb/ozwell-studio:main
+
+# Specific version
+docker pull ghcr.io/mieweb/ozwell-studio:v1.0.0
+```
+
+Run it:
+
+```bash
+docker run --privileged -p 5000:5000 ghcr.io/mieweb/ozwell-studio:latest
+```
+
+Open `http://localhost:5000` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
+
 ## Architecture
 
 The workspace runs as a systemd-managed container. NGINX on port 5000 serves everything under path-based routing:
