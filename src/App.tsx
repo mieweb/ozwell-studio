@@ -12,7 +12,7 @@ interface TabDef {
 const TABS: TabDef[] = [
   { id: "app", label: "Application", url: (b, d) => `//${b}.${d}/`, devPort: 80 },
   { id: "terminal", label: "Terminal", url: (b, d) => `//${b}-ttyd.${d}/`, devPort: 7681 },
-  { id: "editor", label: "Editor", url: (b, d) => `//${b}-code-server.${d}/`, devPort: 8080 },
+  { id: "editor", label: "Editor", url: (b, d) => `//${b}-code-server.${d}/?folder=/workspace`, devPort: 8080 },
 ];
 
 /**
