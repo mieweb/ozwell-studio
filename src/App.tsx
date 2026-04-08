@@ -2,6 +2,9 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@mieweb/ui";
 import { McpConfig } from "./McpConfig";
 
+declare const __APP_VERSION__: string;
+declare const __GIT_COMMIT__: string;
+
 interface TabDef {
   id: string;
   label: string;
@@ -129,6 +132,11 @@ export function App() {
           </div>
         ))}
       </div>
+
+      <footer className="shrink-0 border-t border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+        Ozwell Studio v{__APP_VERSION__}
+        {__GIT_COMMIT__ && <span className="ml-1">({__GIT_COMMIT__})</span>}
+      </footer>
     </div>
   );
 }
