@@ -1,28 +1,32 @@
 # Ozwell Studio
 
-A Docker container image that provides a complete web-based development environment — terminal, IDE, AI-powered tooling, and a live preview of your application — all accessible through a unified browser interface.
+A Docker container image that provides a complete web-based development environment — terminal, IDE, AI-powered tooling, and a live preview of your application — all accessible through a unified browser interface on a single port.
 
 ## Architecture
 
-The workspace runs as a systemd-managed container with the following services:
+The workspace runs as a systemd-managed container. NGINX on port 5000 serves everything under path-based routing:
 
-| Service | Container Port | External URL | Description |
-|---------|---------------|--------------|-------------|
-| User Application | 80 | `<host>.<domain>` | NGINX proxy → localhost:3000 |
-| Workspace Frontend | 5000 | `<host>-studio.<domain>` | Tabbed UI embedding all services |
-| ttyd | 7681 | `<host>-ttyd.<domain>` | Web terminal (bash) |
-| MCP Proxy | 8000 | `<host>-mcp.<domain>` | Model Context Protocol servers |
-| code-server | 8080 | `<host>-code-server.<domain>` | VS Code in the browser |
+| Path | Upstream | Description |
+|------|----------|-------------|
+| `/` | Static files | Studio dashboard (React app) |
+| `/preview/` | `127.0.0.1:3000` | User's application (prefix stripped) |
+| `/ttyd/` | `127.0.0.1:7681` | Web terminal via ttyd (base-path aware) |
+| `/code/` | `127.0.0.1:8080` | VS Code via code-server (prefix stripped, abs-proxy-base-path) |
+| `/mcp/` | `127.0.0.1:8000` | MCP proxy (prefix stripped) |
 
-All external URLs are served over HTTPS:443 by the orchestrator, which terminates TLS and proxies to the container on HTTP/1.1.
+Port 3000 is also exposed directly for the user's application.
+
+An external orchestrator handles authentication, TLS termination, and hostname→port routing — this image only serves plain HTTP.
 
 ### Component Details
 
-**ttyd** — Web-based terminal emulator exposing a bash shell. Listens on `127.0.0.1:7682`; NGINX on port 7681 proxies to it with WebSocket support and CSP headers.
+**Studio Dashboard** — A React + Vite app using [@mieweb/ui](https://www.npmjs.com/package/@mieweb/ui) components that embeds the terminal, IDE, and user application in a tabbed interface. The Application tab includes a browser-style navigation bar with back/forward/reload and a read-only URL display.
 
-**code-server** — VS Code running in the browser. Listens on `127.0.0.1:8081`; NGINX on port 8080 proxies to it. Configured via `/etc/ozwell/code-server/config.yaml` with auth disabled (the orchestrator handles auth), telemetry off, and update checks off. Pre-installed extensions: ESLint, Prettier, Tailwind CSS IntelliSense.
+**ttyd** — Web terminal launching a tmux session (`tmux new-session -A -s main`) so sessions persist across reconnects. Uses `-b /ttyd` base-path so NGINX passes requests through without prefix stripping.
 
-**MCP Proxy** — Aggregates six [Model Context Protocol](https://modelcontextprotocol.io/) servers into a single HTTP/SSE endpoint on port 8000. Servers are fetched on demand via `npx`/`uvx`:
+**code-server** — VS Code in the browser. Configured via `/etc/ozwell/code-server/config.yaml` with auth disabled (the orchestrator handles auth), telemetry and update checks off, and `abs-proxy-base-path: /code` so it generates correct URLs behind the reverse proxy. Pre-installed extensions: ESLint, Prettier, Tailwind CSS IntelliSense.
+
+**MCP Proxy** — Aggregates six [Model Context Protocol](https://modelcontextprotocol.io/) servers into a single HTTP/SSE endpoint. Servers are fetched on demand via `npx`/`uvx`:
 
 - **filesystem** — File operations within `/workspace`
 - **memory** — Persistent knowledge graph
@@ -31,27 +35,13 @@ All external URLs are served over HTTPS:443 by the orchestrator, which terminate
 - **git** — Git operations on `/workspace`
 - **time** — Current time and timezone conversion
 
-**Workspace Frontend** — A React + Vite app using [@mieweb/ui](https://www.npmjs.com/package/@mieweb/ui) components that embeds the terminal, IDE, and user application in a tabbed interface. Built at image build time and served as static files by NGINX on port 5000.
-
-**NGINX** — Reverse proxy handling four concerns:
-1. Proxying the user's application (port 80 → localhost:3000)
-2. Proxying ttyd (port 7681 → 127.0.0.1:7682) and code-server (port 8080 → 127.0.0.1:8081) with WebSocket support
-3. Serving the workspace frontend as static files (port 5000)
-4. Adding `Content-Security-Policy: frame-ancestors *` to allow cross-subdomain iframe embedding (overrides the orchestrator's `X-Frame-Options: SAMEORIGIN`)
-
-### URL Discovery
-
-The workspace frontend at `<host>-studio.<domain>` derives other service URLs from its own hostname. Given `my-app-studio.example.com`, it strips `-studio` to get `my-app` and `example.com`, then constructs protocol-relative URLs:
-
-- `//my-app.example.com` — User application
-- `//my-app-ttyd.example.com` — Terminal
-- `//my-app-code-server.example.com` — Editor
+**NGINX** — Single server on port 5000 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/`, `/mcp/`, and `/preview/` prefixes for their respective upstreams. When nothing is running on port 3000, the `/preview/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
 
 ## Repository Structure
 
 ```
 ├── Dockerfile                    # Multi-stage build
-├── docker-compose.yml            # Local dev with proxy emulating orchestrator
+├── docker-compose.yml            # Local dev (exposes port 5000)
 ├── package.json                  # Vite workspace frontend
 ├── vite.config.ts
 ├── tsconfig.json
@@ -59,66 +49,41 @@ The workspace frontend at `<host>-studio.<domain>` derives other service URLs fr
 │   ├── index.html                # Entry point
 │   ├── index.css                 # Tailwind + Ozwell brand theme
 │   ├── main.tsx                  # React root
-│   └── App.tsx                   # Tabbed iframe interface
+│   └── App.tsx                   # Tabbed iframe interface with preview nav
 ├── contrib/
 │   ├── nginx/
-│   │   └── nginx.conf            # NGINX config (ports 80, 5000, 7681, 8080)
+│   │   └── nginx.conf            # NGINX config (single server on port 5000)
 │   ├── systemd/
 │   │   ├── ttyd.service
 │   │   ├── code-server.service
 │   │   └── mcp-proxy.service
 │   ├── code-server/
 │   │   ├── config.yaml           # code-server options
-│   │   └── settings.json         # VS Code settings (disables AI features)
-│   └── mcp/
-│       └── servers.json          # MCP server definitions
-└── dev/
-    └── proxy/
-        ├── Dockerfile            # Lightweight NGINX proxy
-        └── nginx.conf            # Routes local-*.localhost hostnames
+│   │   └── settings.json         # VS Code settings
+│   ├── mcp/
+│   │   └── servers.json          # MCP server definitions
+│   └── workspace/
+│       ├── README.md             # Placed in /workspace at build time
+│       └── getting-started.html  # Fallback when port 3000 is not running
 ```
 
 ## Building
 
 ```bash
+npm run build          # TypeScript check + Vite production build → dist/
 docker build -t ozwell-studio .
 ```
 
-## Local Development
-
-A Docker Compose setup emulates the orchestrator's hostname-based routing:
+## Running
 
 ```bash
-docker compose up --build
+docker compose up --build  # Builds image and exposes port 5000
 ```
 
-This starts the workspace container and a lightweight NGINX proxy on port 80 that routes:
-
-| URL | Service |
-|-----|---------|
-| `http://local.localhost` | User application |
-| `http://local-studio.localhost` | Workspace frontend |
-| `http://local-ttyd.localhost` | Terminal |
-| `http://local-mcp.localhost` | MCP servers |
-| `http://local-code-server.localhost` | Code editor |
-
-The proxy also adds `X-Frame-Options: SAMEORIGIN` to emulate the orchestrator's behavior, which the workspace NGINX overrides with CSP headers.
-
-> **Note**: The workspace container requires `privileged: true` for systemd.
+The container requires `privileged: true` for systemd. Open `http://localhost:5000` to access the studio.
 
 ## Running Your Application
 
-Bind your application to `localhost:3000` inside the container. NGINX on port 80 proxies to it, and the orchestrator maps `<host>.<domain>` to port 80.
+Bind your application to port 3000 inside the container. It will appear in the **Application** tab at `/preview/`, or access it directly on port 3000.
 
-The `/workspace` directory is the default working directory for the terminal, IDE, and filesystem MCP server.
-
-## Frontend Development
-
-The workspace frontend source lives in `src/`. To develop locally:
-
-```bash
-npm install
-npm run dev
-```
-
-The production build is compiled during the Docker image build (stage 1) and served as static files by NGINX on port 5000.
+The `/workspace` directory is the default working directory for the terminal, IDE, and filesystem MCP server. It is pre-initialized as a git repository with a README.
