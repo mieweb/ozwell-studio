@@ -1,0 +1,13 @@
+[Unit]
+Description=ttyd - Web terminal
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/workspace
+ExecStart=/usr/local/bin/ttyd -W -p 7682 -i lo bash
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
