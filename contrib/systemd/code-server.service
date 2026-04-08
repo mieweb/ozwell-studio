@@ -1,0 +1,13 @@
+[Unit]
+Description=code-server - VS Code in the browser
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/workspace
+ExecStart=/usr/bin/code-server --config /etc/ozwell/code-server/config.yaml /workspace
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
