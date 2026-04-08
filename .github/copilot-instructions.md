@@ -53,7 +53,7 @@ All NGINX proxy blocks use `$http_host` (not `$host`) to preserve the port in th
 
 ### Config Files (`contrib/`)
 
-- `contrib/nginx/nginx.conf` → `/etc/nginx/nginx.conf` — single server on port 5000 with path-based routing.
+- `contrib/nginx/nginx.conf` → `/etc/nginx/sites-enabled/studio` — server block with path-based routing.
 - `contrib/systemd/*.service` → `/etc/systemd/system/` — one unit per service (ttyd, code-server, mcp-proxy).
 - `contrib/code-server/config.yaml` → `/etc/ozwell/code-server/config.yaml` — code-server options (bind address, auth, abs-proxy-base-path, telemetry).
 - `contrib/code-server/settings.json` → `/root/.local/share/code-server/User/settings.json` — VS Code settings.

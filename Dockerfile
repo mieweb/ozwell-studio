@@ -40,7 +40,7 @@ RUN python3 -m venv /opt/mcp-proxy \
     && /opt/mcp-proxy/bin/pip install --no-cache-dir mcp-proxy
 
 COPY --from=builder /build/dist /opt/ozwell-studio/dist/
-COPY contrib/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY contrib/nginx/nginx.conf /etc/nginx/sites-enabled/studio
 COPY contrib/systemd/ /etc/systemd/system/
 COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
 COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
@@ -49,7 +49,8 @@ COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
 COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
 COPY contrib/workspace/README.md /workspace/README.md
 
-RUN cd /workspace && git init \
+RUN rm -f /etc/nginx/sites-enabled/default \
+    && cd /workspace && git init \
     && systemctl enable nginx ttyd code-server mcp-proxy
 
 EXPOSE 3000 5000

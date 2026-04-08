@@ -75,7 +75,7 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 │   └── App.tsx                   # Tabbed iframe interface with preview nav
 ├── contrib/
 │   ├── nginx/
-│   │   └── nginx.conf            # NGINX config (single server on port 5000)
+│   │   └── nginx.conf            # NGINX site config (port 5000, sites-enabled)
 │   ├── systemd/
 │   │   ├── ttyd.service
 │   │   ├── code-server.service
