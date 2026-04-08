@@ -1,0 +1,11 @@
+services:
+  workspace:
+    build: .
+    privileged: true
+
+  proxy:
+    build: dev/proxy
+    ports:
+      - "80:80"
+    depends_on:
+      - workspace
