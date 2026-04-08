@@ -4,8 +4,7 @@
 FROM ghcr.io/mieweb/opensource-server/nodejs:latest AS builder
 
 WORKDIR /build
-COPY package.json package-lock.json* tsconfig.json vite.config.ts ./
-COPY src/ ./src/
+COPY . .
 RUN npm ci && npm run build
 
 # ── Stage 2: Production image ──────────────────────────────────

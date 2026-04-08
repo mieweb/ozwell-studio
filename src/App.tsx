@@ -133,9 +133,32 @@ export function App() {
         ))}
       </div>
 
-      <footer className="shrink-0 border-t border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
-        Ozwell Studio v{__APP_VERSION__}
-        {__GIT_COMMIT__ && <span className="ml-1">({__GIT_COMMIT__})</span>}
+      <footer className="flex shrink-0 items-center justify-between border-t border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
+        <span>
+          Ozwell Studio v{__APP_VERSION__}
+          {__GIT_COMMIT__ && (
+            <>
+              {" ("}
+              <a
+                href={`https://github.com/mieweb/ozwell-studio/commit/${__GIT_COMMIT__}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-foreground"
+              >
+                {__GIT_COMMIT__}
+              </a>
+              {")"}
+            </>
+          )}
+        </span>
+        <a
+          href={`https://github.com/mieweb/ozwell-studio/issues/new?template=bug_report.yml&url=${encodeURIComponent(window.location.href)}&version=${encodeURIComponent(`v${__APP_VERSION__}${__GIT_COMMIT__ ? ` (${__GIT_COMMIT__})` : ""}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-foreground"
+        >
+          Report a bug
+        </a>
       </footer>
     </div>
   );

@@ -1,0 +1,42 @@
+name: Bug Report
+description: Report a bug in Ozwell Studio
+labels: [bug]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Studio URL
+      description: The URL of the Ozwell Studio instance where you encountered the bug.
+      placeholder: https://example-studio.os.mieweb.org
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version and/or commit hash shown in the Studio footer.
+      placeholder: v0.1.0 (abc1234)
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of what happened and what you expected to happen.
+      placeholder: Tell us what went wrong...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: false
