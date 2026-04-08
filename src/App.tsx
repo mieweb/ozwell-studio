@@ -1,16 +1,18 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@mieweb/ui";
+import { McpConfig } from "./McpConfig";
 
 interface TabDef {
   id: string;
   label: string;
-  src: string;
+  src?: string;
 }
 
 const TABS: TabDef[] = [
   { id: "app", label: "Application", src: "/preview/" },
   { id: "terminal", label: "Terminal", src: "/ttyd/" },
   { id: "editor", label: "Editor", src: "/code/?folder=/workspace" },
+  { id: "mcp", label: "MCP Config" },
 ];
 
 function PreviewNavBar({ iframeRef }: { iframeRef: HTMLIFrameElement | null }) {
@@ -114,12 +116,16 @@ export function App() {
             {tab.id === "app" && (
               <PreviewNavBar iframeRef={previewFrame} />
             )}
-            <iframe
-              ref={tab.id === "app" ? setPreviewFrame : undefined}
-              src={tab.src}
-              title={tab.label}
-              className="flex-1 border-none"
-            />
+            {tab.id === "mcp" ? (
+              <McpConfig />
+            ) : (
+              <iframe
+                ref={tab.id === "app" ? setPreviewFrame : undefined}
+                src={tab.src}
+                title={tab.label}
+                className="flex-1 border-none"
+              />
+            )}
           </div>
         ))}
       </div>
