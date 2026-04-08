@@ -46,7 +46,10 @@ COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
 COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
 
-RUN mkdir -p /workspace \
+COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
+COPY contrib/workspace/README.md /workspace/README.md
+
+RUN cd /workspace && git init \
     && systemctl enable nginx ttyd code-server mcp-proxy
 
-EXPOSE 80 5000 7681 8000 8080
+EXPOSE 3000 5000

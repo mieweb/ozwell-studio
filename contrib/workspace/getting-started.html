@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ozwell Studio - Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e5e5e5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 40rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+    p {
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      color: #a3a3a3;
+    }
+    code {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 0.25rem;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: left;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>No application running</h1>
+    <p>
+      Start your application on port <code>3000</code> and it will appear here
+      automatically.
+    </p>
+    <pre><code>npx create-vite@latest . --template react &amp;&amp; npm install &amp;&amp; npm run dev -- --port 3000</code></pre>
+    <p>
+      Or serve any static files:
+    </p>
+    <pre><code>python3 -m http.server 3000</code></pre>
+  </div>
+</body>
+</html>
