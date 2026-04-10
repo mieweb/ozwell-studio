@@ -2,32 +2,17 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"],
+      "args": ["-y", "@j0hanz/filesystem-mcp@latest", "/workspace"],
       "transportType": "stdio"
     },
-    "memory": {
+    "tmux": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "transportType": "stdio"
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "transportType": "stdio"
-    },
-    "fetch": {
-      "command": "uvx",
-      "args": ["mcp-server-fetch"],
+      "args": ["-y", "tmux-mcp"],
       "transportType": "stdio"
     },
     "git": {
       "command": "uvx",
       "args": ["mcp-server-git"],
-      "transportType": "stdio"
-    },
-    "time": {
-      "command": "uvx",
-      "args": ["mcp-server-time"],
       "transportType": "stdio"
     }
   }

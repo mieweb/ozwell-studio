@@ -3,11 +3,8 @@ import { Select } from "@mieweb/ui";
 
 const MCP_SERVERS = [
   "filesystem",
-  "memory",
-  "sequential-thinking",
-  "fetch",
+  "tmux",
   "git",
-  "time",
 ];
 
 interface Flavor {

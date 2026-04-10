@@ -49,14 +49,11 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 
 **code-server** — VS Code in the browser. Configured via `/etc/ozwell/code-server/config.yaml` with auth disabled (the orchestrator handles auth), telemetry and update checks off, and `abs-proxy-base-path: /code` so it generates correct URLs behind the reverse proxy. Pre-installed extensions: ESLint, Prettier, Tailwind CSS IntelliSense.
 
-**MCP Proxy** — Aggregates six [Model Context Protocol](https://modelcontextprotocol.io/) servers into a single HTTP/SSE endpoint. Servers are fetched on demand via `npx`/`uvx`:
+**MCP Proxy** — Aggregates [Model Context Protocol](https://modelcontextprotocol.io/) servers into a single HTTP/SSE endpoint. Servers are fetched on demand via `npx`/`uvx`:
 
-- **filesystem** — File operations within `/workspace`
-- **memory** — Persistent knowledge graph
-- **sequential-thinking** — Structured reasoning
-- **fetch** — HTTP fetching
+- **filesystem** — File read/write/search/diff/patch within `/workspace` ([j0hanz/filesystem-mcp](https://github.com/j0hanz/filesystem-mcp))
+- **tmux** — Control the shared tmux session visible in the Terminal tab ([nickgnd/tmux-mcp](https://github.com/nickgnd/tmux-mcp))
 - **git** — Git operations on `/workspace`
-- **time** — Current time and timezone conversion
 
 **NGINX** — Single server on port 5000 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/`, `/mcp/`, and `/preview/` prefixes for their respective upstreams. When nothing is running on port 3000, the `/preview/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
 
