@@ -44,6 +44,7 @@ COPY contrib/systemd/ /etc/systemd/system/
 COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
 COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
+COPY contrib/tmux/tmux.conf /etc/tmux.conf
 
 COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
 COPY contrib/workspace/README.md /workspace/README.md
