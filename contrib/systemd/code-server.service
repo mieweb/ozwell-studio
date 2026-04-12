@@ -5,6 +5,10 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/workspace
+Environment=SHELL=/bin/bash
+Environment=HOME=/root
+Environment=USER=root
+Environment=TERM=xterm-256color
 ExecStart=/usr/bin/code-server --config /etc/ozwell/code-server/config.yaml /workspace
 Restart=always
 RestartSec=5
