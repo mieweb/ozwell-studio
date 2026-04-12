@@ -1,6 +1,7 @@
 services:
   workspace:
     build: .
+    platform: linux/amd64
     privileged: true
     ports:
       - "5000:5000"
