@@ -1,0 +1,11 @@
+[Unit]
+Description=Write Continue .env from container environment
+Before=code-server.service openvscode-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'printenv | grep -E "^(ANTHROPIC_|OPENAI_)" > /root/.continue/.env || true'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

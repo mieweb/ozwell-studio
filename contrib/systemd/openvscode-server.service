@@ -1,5 +1,5 @@
 [Unit]
-Description=code-server - VS Code in the browser
+Description=OpenVSCode Server - VS Code in the browser
 After=network.target continue-env.service
 
 [Service]
@@ -10,7 +10,7 @@ Environment=HOME=/root
 Environment=USER=root
 Environment=TERM=xterm-256color
 PassEnvironment=ANTHROPIC_API_KEY OPENAI_API_KEY
-ExecStart=/usr/bin/code-server --config /etc/ozwell/code-server/config.yaml /workspace
+ExecStart=/opt/openvscode-server/bin/openvscode-server --host 127.0.0.1 --port 8081 --server-base-path /vscode --without-connection-token --telemetry-level off
 Restart=always
 RestartSec=5
 

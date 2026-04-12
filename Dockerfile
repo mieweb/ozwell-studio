@@ -28,7 +28,21 @@ RUN --mount=type=tmpfs,target=/tmp \
 # Pre-install code-server extensions (Open VSX)
 RUN code-server --install-extension dbaeumer.vscode-eslint \
     && code-server --install-extension esbenp.prettier-vscode \
-    && code-server --install-extension bradlc.vscode-tailwindcss
+    && code-server --install-extension bradlc.vscode-tailwindcss \
+    && code-server --install-extension Continue.continue
+
+ARG OPENVSCODE_VERSION=1.109.5
+RUN --mount=type=tmpfs,target=/tmp \
+    curl -fsSL -o /tmp/openvscode.tar.gz \
+      "https://github.com/gitpod-io/openvscode-server/releases/download/openvscode-server-v${OPENVSCODE_VERSION}/openvscode-server-v${OPENVSCODE_VERSION}-linux-x64.tar.gz" \
+    && tar -xzf /tmp/openvscode.tar.gz -C /opt \
+    && mv /opt/openvscode-server-v${OPENVSCODE_VERSION}-linux-x64 /opt/openvscode-server
+
+# Pre-install openvscode-server extensions (Open VSX)
+RUN /opt/openvscode-server/bin/openvscode-server --install-extension dbaeumer.vscode-eslint \
+    && /opt/openvscode-server/bin/openvscode-server --install-extension esbenp.prettier-vscode \
+    && /opt/openvscode-server/bin/openvscode-server --install-extension bradlc.vscode-tailwindcss \
+    && /opt/openvscode-server/bin/openvscode-server --install-extension Continue.continue
 
 ARG UV_VERSION=0.11.3
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
@@ -43,16 +57,20 @@ COPY contrib/nginx/nginx.conf /etc/nginx/sites-enabled/studio
 COPY contrib/systemd/ /etc/systemd/system/
 COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
 COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
+COPY contrib/code-server/settings.json /root/.openvscode-server/data/Machine/settings.json
+COPY contrib/continue/config.yaml /root/.continue/config.yaml
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
 COPY contrib/tmux/tmux.conf /etc/tmux.conf
 
 COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
 COPY contrib/workspace/README.md /workspace/README.md
+COPY --chmod=0755 contrib/entrypoint.sh /opt/ozwell-studio/entrypoint.sh
 
 RUN rm -f /etc/nginx/sites-enabled/default \
     && cd /workspace && git init \
-    && systemctl enable nginx ttyd code-server mcp-proxy
+    && systemctl enable nginx ttyd code-server openvscode-server mcp-proxy continue-env
 
+ENTRYPOINT ["/opt/ozwell-studio/entrypoint.sh"]
 EXPOSE 3000 6080
 LABEL org.mieweb.opensource-server.services.http.ozwell-studio.port=6000 \
       org.mieweb.opensource-server.services.http.ozwell-studio.hostnameSuffix=studio \

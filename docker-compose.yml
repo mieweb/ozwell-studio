@@ -3,5 +3,6 @@ services:
     build: .
     platform: linux/amd64
     privileged: true
+    env_file: .env
     ports:
       - "6080:6080"
