@@ -20,14 +20,14 @@ docker pull ghcr.io/mieweb/ozwell-studio:v1.0.0
 Run it:
 
 ```bash
-docker run --privileged -p 5000:5000 ghcr.io/mieweb/ozwell-studio:latest
+docker run --privileged -p 6080:6080 ghcr.io/mieweb/ozwell-studio:latest
 ```
 
-Open `http://localhost:5000` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
+Open `http://localhost:6080` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
 
 ## Architecture
 
-The workspace runs as a systemd-managed container. NGINX on port 5000 serves everything under path-based routing:
+The workspace runs as a systemd-managed container. NGINX on port 6080 serves everything under path-based routing:
 
 | Path | Upstream | Description |
 |------|----------|-------------|
@@ -55,13 +55,13 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 - **tmux** — Control the shared tmux session visible in the Terminal tab ([nickgnd/tmux-mcp](https://github.com/nickgnd/tmux-mcp))
 - **git** — Git operations on `/workspace`
 
-**NGINX** — Single server on port 5000 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/`, `/mcp/`, and `/preview/` prefixes for their respective upstreams. When nothing is running on port 3000, the `/preview/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
+**NGINX** — Single server on port 6080 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/`, `/mcp/`, and `/preview/` prefixes for their respective upstreams. When nothing is running on port 3000, the `/preview/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
 
 ## Repository Structure
 
 ```
 ├── Dockerfile                    # Multi-stage build
-├── docker-compose.yml            # Local dev (exposes port 5000)
+├── docker-compose.yml            # Local dev (exposes port 6080)
 ├── package.json                  # Vite workspace frontend
 ├── vite.config.ts
 ├── tsconfig.json
@@ -72,7 +72,7 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 │   └── App.tsx                   # Tabbed iframe interface with preview nav
 ├── contrib/
 │   ├── nginx/
-│   │   └── nginx.conf            # NGINX site config (port 5000, sites-enabled)
+│   │   └── nginx.conf            # NGINX site config (port 6080, sites-enabled)
 │   ├── systemd/
 │   │   ├── ttyd.service
 │   │   ├── code-server.service
@@ -97,10 +97,10 @@ docker build -t ozwell-studio .
 ## Running
 
 ```bash
-docker compose up --build  # Builds image and exposes port 5000
+docker compose up --build  # Builds image and exposes port 6080
 ```
 
-The container requires `privileged: true` for systemd. Open `http://localhost:5000` to access the studio.
+The container requires `privileged: true` for systemd. Open `http://localhost:6080` to access the studio.
 
 ## Running Your Application
 

@@ -5,7 +5,7 @@
 ```bash
 npm run build          # TypeScript check + Vite production build → dist/
 npm run dev            # Vite dev server (frontend only)
-docker compose up --build  # Full stack: workspace container on port 5000
+docker compose up --build  # Full stack: workspace container on port 6080
 ```
 
 The workspace container requires `privileged: true` (systemd as PID 1). There are no tests or linters configured.
@@ -18,10 +18,10 @@ This repo produces a single Docker image that runs a systemd-managed multi-servi
 
 | Port | Listener | Purpose |
 |------|----------|---------|
-| 5000 | NGINX | All studio services via path-based routing |
+| 6080 | NGINX | All studio services via path-based routing |
 | 3000 | (user app) | Direct access to user's application |
 
-NGINX on port 5000 routes all paths:
+NGINX on port 6080 routes all paths:
 
 | Path | Upstream | Notes |
 |------|----------|-------|
