@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview --port 5000 --host 0.0.0.0"
+    "preview": "vite preview --port 6080 --host 0.0.0.0"
   },
   "dependencies": {
     "@mieweb/ui": "^0.2.4",
