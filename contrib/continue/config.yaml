@@ -1,0 +1,58 @@
+name: Ozwell Studio
+version: 1.0.0
+schema: v1
+models:
+  - name: Claude Opus 4.6 · $5/$25 MTok
+    provider: anthropic
+    model: claude-opus-4-6
+    apiKey: ANTHROPIC_API_KEY_PLACEHOLDER
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 1000000
+  - name: Claude Sonnet 4.6 · $3/$15 MTok
+    provider: anthropic
+    model: claude-sonnet-4-6
+    apiKey: ANTHROPIC_API_KEY_PLACEHOLDER
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 1000000
+  - name: Claude Haiku 4.5 · $1/$5 MTok
+    provider: anthropic
+    model: claude-haiku-4-5
+    apiKey: ANTHROPIC_API_KEY_PLACEHOLDER
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 200000
+context:
+  - provider: file
+  - provider: code
+  - provider: diff
+mcpServers:
+  - name: filesystem
+    command: npx
+    args:
+      - -y
+      - "@j0hanz/filesystem-mcp@latest"
+      - /workspace
+  - name: tmux
+    command: npx
+    args:
+      - -y
+      - tmux-mcp
+  - name: git
+    command: uvx
+    args:
+      - mcp-server-git
+rules:
+  - Always assume TypeScript unless told otherwise
+  - Use concise responses
+  - Always use the tmux MCP tool to run terminal commands and capture output. Do not use the built-in terminal tool as it cannot capture output in this environment.
