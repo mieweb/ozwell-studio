@@ -18,6 +18,11 @@ const TABS: TabDef[] = [
   { id: "mcp", label: "MCP Config" },
 ];
 
+function tabFromHash(): string {
+  const hash = window.location.hash.replace("#", "");
+  return TABS.find((t) => t.id === hash)?.id ?? "app";
+}
+
 function PreviewNavBar({ iframeRef }: { iframeRef: HTMLIFrameElement | null }) {
   const [url, setUrl] = useState("/preview/");
   const history = useRef<string[]>(["/preview/"]);
@@ -93,12 +98,23 @@ function PreviewNavBar({ iframeRef }: { iframeRef: HTMLIFrameElement | null }) {
 }
 
 export function App() {
-  const [activeTab, setActiveTab] = useState("app");
+  const [activeTab, setActiveTab] = useState(tabFromHash);
   const [previewFrame, setPreviewFrame] = useState<HTMLIFrameElement | null>(null);
+
+  const changeTab = useCallback((id: string) => {
+    window.location.hash = id;
+    setActiveTab(id);
+  }, []);
+
+  useEffect(() => {
+    const onHashChange = () => setActiveTab(tabFromHash());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={changeTab}>
         <TabsList className="shrink-0 px-2">
           {TABS.map((tab) => (
             <TabsTrigger key={tab.id} value={tab.id}>
