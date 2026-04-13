@@ -29,9 +29,12 @@ RUN --mount=type=tmpfs,target=/tmp \
 ENV EXTENSIONS_GALLERY='{"serviceUrl":"https://marketplace.visualstudio.com/_apis/public/gallery","itemUrl":"https://marketplace.visualstudio.com/items"}'
 
 # Pre-install code-server extensions
-RUN code-server --install-extension dbaeumer.vscode-eslint \
-    && code-server --install-extension esbenp.prettier-vscode \
-    && code-server --install-extension bradlc.vscode-tailwindcss
+RUN code-server --install-extension GitHub.copilot-chat \
+    && code-server --install-extension ms-python.python \
+    && code-server --install-extension ms-python.vscode-pylance \
+    && code-server --install-extension ms-python.debugpy \
+    && code-server --install-extension ms-vscode.cpptools \
+    && code-server --install-extension esbenp.prettier-vscode
 
 ARG UV_VERSION=0.11.6
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
@@ -45,7 +48,7 @@ COPY --from=builder /build/dist /opt/ozwell-studio/dist/
 COPY contrib/nginx/nginx.conf /etc/nginx/sites-enabled/studio
 COPY contrib/systemd/ /etc/systemd/system/
 COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
-COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
+COPY contrib/code-server/User/ /root/.local/share/code-server/User/
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
 COPY contrib/tmux/tmux.conf /etc/tmux.conf
 
