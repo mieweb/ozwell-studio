@@ -25,7 +25,10 @@ RUN --mount=type=tmpfs,target=/tmp \
       "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb" \
     && dpkg -i /tmp/code-server.deb
 
-# Pre-install code-server extensions (Open VSX)
+# Use VS Code Marketplace (persists for both build-time installs and runtime)
+ENV EXTENSIONS_GALLERY='{"serviceUrl":"https://marketplace.visualstudio.com/_apis/public/gallery","itemUrl":"https://marketplace.visualstudio.com/items"}'
+
+# Pre-install code-server extensions
 RUN code-server --install-extension dbaeumer.vscode-eslint \
     && code-server --install-extension esbenp.prettier-vscode \
     && code-server --install-extension bradlc.vscode-tailwindcss
