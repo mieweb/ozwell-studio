@@ -30,7 +30,7 @@ RUN code-server --install-extension dbaeumer.vscode-eslint \
     && code-server --install-extension esbenp.prettier-vscode \
     && code-server --install-extension bradlc.vscode-tailwindcss
 
-ARG UV_VERSION=0.11.3
+ARG UV_VERSION=0.11.6
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
     | tar -xzf - --strip-components=1 -C /usr/local/bin \
       uv-x86_64-unknown-linux-gnu/uv uv-x86_64-unknown-linux-gnu/uvx
