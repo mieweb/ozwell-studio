@@ -82,7 +82,7 @@ export function McpConfig() {
 
   const baseUrl = typeof window !== "undefined"
     ? `${window.location.origin}/mcp`
-    : "http://localhost:5000/mcp";
+    : "http://localhost:6080/mcp";
 
   const config = useMemo(
     () => FLAVORS[flavor].generate(baseUrl, apiKey),
