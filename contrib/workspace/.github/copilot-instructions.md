@@ -1,0 +1,29 @@
+# Ozwell Studio
+
+## Application Server
+
+Your application must listen on `0.0.0.0:3000`. It is served to users
+through a reverse proxy — you will not know the hostname or domain in
+advance, so do not hard-code or validate the `Host` header.
+
+## Path Handling
+
+The application is accessed two ways:
+
+1. **Directly** — the user visits the root of a dedicated hostname
+   (e.g. `https://demo.example.com/`). Requests arrive at your server
+   with their original path unchanged.
+
+2. **Through the Studio dashboard** — the user visits
+   `https://studio.example.net/preview/…`. The `/preview` prefix is
+   **stripped** before the request reaches your server, so your
+   application always sees paths starting from `/`.
+
+Because of this, your application should:
+
+- Serve all routes relative to `/` (no base-path prefix).
+- Use **relative URLs** (e.g. `./assets/main.js`, not
+  `/assets/main.js`) for static assets whenever possible, so links
+  work regardless of how the page was loaded.
+- Avoid absolute redirects that assume a specific origin or path
+  prefix.

@@ -49,8 +49,8 @@ COPY contrib/code-server/settings.json /root/.local/share/code-server/User/setti
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
 COPY contrib/tmux/tmux.conf /etc/tmux.conf
 
-COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
-COPY contrib/workspace/README.md /workspace/README.md
+COPY contrib/studio/getting-started.html /opt/ozwell-studio/getting-started.html
+COPY contrib/workspace/ /workspace/
 
 RUN rm -f /etc/nginx/sites-enabled/default \
     && cd /workspace && git init \
