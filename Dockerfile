@@ -54,6 +54,6 @@ RUN rm -f /etc/nginx/sites-enabled/default \
     && systemctl enable nginx ttyd code-server mcp-proxy
 
 EXPOSE 3000 6080
-LABEL org.mieweb.opensource-server.services.http.ozwell-studio.port=6000 \
+LABEL org.mieweb.opensource-server.services.http.ozwell-studio.port=6080 \
       org.mieweb.opensource-server.services.http.ozwell-studio.hostnameSuffix=studio \
       org.mieweb.opensource-server.services.http.ozwell-studio.requireAuth=true
