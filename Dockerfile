@@ -19,18 +19,24 @@ ADD --chmod=0755 \
     https://github.com/tsl0922/ttyd/releases/download/${TTYD_VERSION}/ttyd.x86_64 \
     /usr/local/bin/ttyd
 
-ARG CODE_SERVER_VERSION=4.114.1
+ARG CODE_SERVER_VERSION=4.115.0
 RUN --mount=type=tmpfs,target=/tmp \
     curl -fsSL -o /tmp/code-server.deb \
       "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb" \
     && dpkg -i /tmp/code-server.deb
 
-# Pre-install code-server extensions (Open VSX)
-RUN code-server --install-extension dbaeumer.vscode-eslint \
-    && code-server --install-extension esbenp.prettier-vscode \
-    && code-server --install-extension bradlc.vscode-tailwindcss
+# Use VS Code Marketplace (persists for both build-time installs and runtime)
+ENV EXTENSIONS_GALLERY='{"serviceUrl":"https://marketplace.visualstudio.com/_apis/public/gallery","itemUrl":"https://marketplace.visualstudio.com/items"}'
 
-ARG UV_VERSION=0.11.3
+# Pre-install code-server extensions
+RUN code-server --install-extension GitHub.copilot-chat \
+    && code-server --install-extension ms-python.python \
+    && code-server --install-extension ms-python.vscode-pylance \
+    && code-server --install-extension ms-python.debugpy \
+    && code-server --install-extension ms-vscode.cpptools \
+    && code-server --install-extension esbenp.prettier-vscode
+
+ARG UV_VERSION=0.11.6
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
     | tar -xzf - --strip-components=1 -C /usr/local/bin \
       uv-x86_64-unknown-linux-gnu/uv uv-x86_64-unknown-linux-gnu/uvx
@@ -42,12 +48,12 @@ COPY --from=builder /build/dist /opt/ozwell-studio/dist/
 COPY contrib/nginx/nginx.conf /etc/nginx/sites-enabled/studio
 COPY contrib/systemd/ /etc/systemd/system/
 COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
-COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
+COPY contrib/code-server/User/ /root/.local/share/code-server/User/
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
 COPY contrib/tmux/tmux.conf /etc/tmux.conf
 
-COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
-COPY contrib/workspace/README.md /workspace/README.md
+COPY contrib/studio/getting-started.html /opt/ozwell-studio/getting-started.html
+COPY contrib/workspace/ /workspace/
 
 RUN rm -f /etc/nginx/sites-enabled/default \
     && cd /workspace && git init \

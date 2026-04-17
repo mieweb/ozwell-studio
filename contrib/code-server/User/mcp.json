@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "filesystem": {
+      "type": "http",
+      "url": "http://127.0.0.1:8000/servers/filesystem/mcp"
+    },
+    "tmux": {
+      "type": "http",
+      "url": "http://127.0.0.1:8000/servers/tmux/mcp"
+    },
+    "git": {
+      "type": "http",
+      "url": "http://127.0.0.1:8000/servers/git/mcp"
+    }
+  }
+}
