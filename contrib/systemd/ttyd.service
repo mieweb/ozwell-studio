@@ -4,6 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
+User=root
+Group=root
+PAMName=login
 WorkingDirectory=/workspace
 ExecStart=/usr/local/bin/ttyd -W -i lo -b /ttyd -t disableLeaveAlert=true tmux new-session -A -s main
 Restart=always

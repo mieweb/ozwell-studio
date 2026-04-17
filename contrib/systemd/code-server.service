@@ -4,6 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
+User=root
+Group=root
+PAMName=login
 WorkingDirectory=/workspace
 ExecStart=/usr/bin/code-server --config /etc/ozwell/code-server/config.yaml /workspace
 Restart=always
