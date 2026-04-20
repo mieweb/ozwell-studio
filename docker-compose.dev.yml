@@ -1,0 +1,22 @@
+# Dev overlay: mounts the Ozzy extension source for live iteration.
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#
+# Before first use, build the extension locally:
+#   scripts/build-ozzy.sh
+#
+# After changing extension source (vendor/ozzy/), rebuild just the extension:
+#   cd vendor/ozzy && node esbuild.mjs --production
+# Then reload the code-server window (Ctrl+Shift+P → Reload Window).
+
+services:
+  workspace:
+    container_name: ozwell-studio-workspace-1-dev
+    environment:
+      - OZWELL_ALLOW_OUTBOUND=1    # skip iptables firewall for dev
+    volumes:
+      # Mount pre-built Ozzy extension into code-server
+      - ./vendor/ozzy:/root/.local/share/code-server/extensions/ozwell.ozzy-3.78.0
+      # Mount pre-built Ozzy extension into openvscode-server
+      - ./vendor/ozzy:/root/.openvscode-server/extensions/ozwell.ozzy-3.78.0
+      # Mount AGENTS.md for live editing
+      - ./contrib/ozzy/AGENTS.md:/workspace/AGENTS.md

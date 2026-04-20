@@ -1,0 +1,4 @@
+services:
+  workspace:
+    ports: !override
+      - "6081:6080"

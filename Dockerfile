@@ -4,14 +4,15 @@
 FROM ghcr.io/mieweb/opensource-server/nodejs:latest AS builder
 
 WORKDIR /build
-COPY . .
+COPY package.json package-lock.json tsconfig.json vite.config.ts ./
+COPY src/ src/
 RUN npm ci && npm run build
 
 # ── Stage 2: Production image ──────────────────────────────────
 FROM ghcr.io/mieweb/opensource-server/nodejs:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx python3 python3-venv git ca-certificates \
+    nginx python3 python3-venv git ca-certificates iptables \
     && rm -rf /var/lib/apt/lists/*
 
 ARG TTYD_VERSION=1.7.7
@@ -31,6 +32,10 @@ RUN code-server --install-extension dbaeumer.vscode-eslint \
     && code-server --install-extension bradlc.vscode-tailwindcss \
     && code-server --install-extension Continue.continue
 
+# Install Ozzy (rebranded Cline) extension from pre-built VSIX
+COPY dist/ozzy.vsix /tmp/ozzy.vsix
+RUN code-server --install-extension /tmp/ozzy.vsix
+
 ARG OPENVSCODE_VERSION=1.109.5
 RUN --mount=type=tmpfs,target=/tmp \
     curl -fsSL -o /tmp/openvscode.tar.gz \
@@ -43,6 +48,10 @@ RUN /opt/openvscode-server/bin/openvscode-server --install-extension dbaeumer.vs
     && /opt/openvscode-server/bin/openvscode-server --install-extension esbenp.prettier-vscode \
     && /opt/openvscode-server/bin/openvscode-server --install-extension bradlc.vscode-tailwindcss \
     && /opt/openvscode-server/bin/openvscode-server --install-extension Continue.continue
+
+# Install Ozzy extension for openvscode-server
+RUN /opt/openvscode-server/bin/openvscode-server --install-extension /tmp/ozzy.vsix \
+    && rm -f /tmp/ozzy.vsix
 
 ARG UV_VERSION=0.11.3
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
@@ -59,11 +68,13 @@ COPY contrib/code-server/config.yaml /etc/ozwell/code-server/config.yaml
 COPY contrib/code-server/settings.json /root/.local/share/code-server/User/settings.json
 COPY contrib/code-server/settings.json /root/.openvscode-server/data/Machine/settings.json
 COPY contrib/continue/config.yaml /root/.continue/config.yaml
+COPY contrib/ozzy/AGENTS.md /workspace/AGENTS.md
 COPY contrib/mcp/servers.json /etc/ozwell/mcp/servers.json
+COPY contrib/firewall/allowlist.conf /etc/ozwell/firewall/allowlist.conf
 COPY contrib/tmux/tmux.conf /etc/tmux.conf
 
 COPY contrib/workspace/getting-started.html /opt/ozwell-studio/getting-started.html
-COPY contrib/workspace/README.md /workspace/README.md
+COPY contrib/workspace/ /workspace/
 COPY --chmod=0755 contrib/entrypoint.sh /opt/ozwell-studio/entrypoint.sh
 
 RUN rm -f /etc/nginx/sites-enabled/default \
