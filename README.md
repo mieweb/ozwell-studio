@@ -80,6 +80,8 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 │   ├── code-server/
 │   │   ├── config.yaml           # code-server options
 │   │   └── settings.json         # VS Code settings
+│   ├── firewall/
+│   │   └── allowlist.conf        # Outbound domain/CIDR allowlist
 │   ├── mcp/
 │   │   └── servers.json          # MCP server definitions
 │   └── workspace/
@@ -94,6 +96,17 @@ npm run build          # TypeScript check + Vite production build → dist/
 docker build -t ozwell-studio .
 ```
 
+### Rebuilding the Ozzy Extension
+
+The Dockerfile installs a pre-built VSIX (`dist/ozzy.vsix`) into code-server and openvscode-server. Docker layer caching keys on the VSIX file content, so **after editing anything in `vendor/ozzy/` you must rebuild the VSIX** before building the Docker image:
+
+```bash
+bash scripts/build-ozzy.sh   # Packages vendor/ozzy → dist/ozzy.vsix
+docker compose up --build    # COPY sees changed VSIX → cache busted
+```
+
+Skipping this step means Docker reuses the cached layer with stale extension files.
+
 ## Running
 
 ```bash
@@ -101,6 +114,54 @@ docker compose up --build  # Builds image and exposes port 6080
 ```
 
 The container requires `privileged: true` for systemd. Open `http://localhost:6080` to access the studio.
+
+## Outbound Firewall
+
+The container blocks all outbound network traffic by default, except for an explicit allowlist. Incoming connections (port 6080) are unaffected.
+
+### How It Works
+
+At startup, the entrypoint reads `/etc/ozwell/firewall/allowlist.conf`, resolves each domain to its current IP addresses, and creates iptables rules:
+
+1. **Loopback** — always allowed (internal services communicate freely)
+2. **Established/Related** — reply packets for accepted connections
+3. **DNS (port 53)** — always allowed for domain resolution
+4. **Allowlisted hosts** — resolved IPs from the config file + `OZWELL_ALLOW_HOSTS` env var
+5. **Default REJECT** — everything else is blocked
+
+### Default Allowlist
+
+The built-in allowlist (`contrib/firewall/allowlist.conf`) permits:
+
+| Category | Hosts |
+|----------|-------|
+| AI Providers | `api.anthropic.com` |
+| Git Hosting | `github.com`, `ssh.github.com`, `*.githubusercontent.com` |
+| NPM | `registry.npmjs.org` |
+| PyPI | `pypi.org`, `files.pythonhosted.org` |
+| APT (Debian) | `deb.debian.org`, `security.debian.org` |
+| Extensions | `ghcr.io`, `open-vsx.org` |
+
+### Adding Hosts at Runtime
+
+Use the `OZWELL_ALLOW_HOSTS` environment variable (comma-separated). Supports domains and CIDRs:
+
+```bash
+# In .env
+OZWELL_ALLOW_HOSTS=ehr.example.com,10.0.0.0/8,api.openai.com
+```
+
+Or uncomment entries in `contrib/firewall/allowlist.conf` and rebuild.
+
+### Disabling the Firewall
+
+Set `OZWELL_ALLOW_OUTBOUND=1` to skip all iptables rules (used by the dev overlay):
+
+```bash
+OZWELL_ALLOW_OUTBOUND=1 docker compose up
+```
+
+The `docker-compose.dev.yml` overlay sets this automatically.
 
 ## Running Your Application
 
