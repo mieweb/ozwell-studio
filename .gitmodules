@@ -1,0 +1,3 @@
+[submodule "vendor/ozzy"]
+	path = vendor/ozzy
+	url = https://github.com/cline/cline.git

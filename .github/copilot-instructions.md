@@ -10,6 +10,19 @@ docker compose up --build  # Full stack: workspace container on port 6080
 
 The workspace container requires `privileged: true` (systemd as PID 1). There are no tests or linters configured.
 
+### Ozzy Extension (VSIX)
+
+The pre-built `dist/ozzy.vsix` is committed to the repo via **Git LFS** — no submodule checkout is needed to build the Docker image. The Dockerfile installs it into code-server and openvscode-server. Docker layer caching keys on the VSIX file content.
+
+The `vendor/ozzy/` submodule (pointing to [mieweb/ozzy](https://github.com/mieweb/ozzy)) is **optional** — only needed when developing the extension itself. To update the committed VSIX after making changes:
+
+```bash
+git submodule update --init vendor/ozzy   # only if not already checked out
+bash scripts/build-ozzy.sh                # Packages vendor/ozzy → dist/ozzy.vsix
+git add dist/ozzy.vsix && git commit      # LFS tracks the binary
+docker compose up --build                 # COPY sees changed VSIX → cache busted
+```
+
 ## Architecture
 
 This repo produces a single Docker image that runs a systemd-managed multi-service container exposing a complete web development environment. An external orchestrator handles authentication, TLS termination, and hostname→port routing — this image only serves plain HTTP.
@@ -58,6 +71,7 @@ All NGINX proxy blocks use `$http_host` (not `$host`) to preserve the port in th
 - `contrib/code-server/config.yaml` → `/etc/ozwell/code-server/config.yaml` — code-server options (bind address, auth, abs-proxy-base-path, telemetry).
 - `contrib/code-server/settings.json` → `/root/.local/share/code-server/User/settings.json` — VS Code settings.
 - `contrib/mcp/servers.json` → `/etc/ozwell/mcp/servers.json` — mcp-proxy named server definitions.
+- `contrib/firewall/allowlist.conf` → `/etc/ozwell/firewall/allowlist.conf` — outbound domain/CIDR allowlist (one entry per line, resolved to IPs at startup via iptables).
 - `contrib/workspace/README.md` → `/workspace/README.md` — getting-started info for the user.
 - `contrib/workspace/getting-started.html` → `/opt/ozwell-studio/getting-started.html` — fallback page when port 3000 is unavailable.
 
