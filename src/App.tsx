@@ -15,6 +15,7 @@ const TABS: TabDef[] = [
   { id: "app", label: "Application", src: "/preview/" },
   { id: "terminal", label: "Terminal", src: "/ttyd/" },
   { id: "editor", label: "Editor", src: "/code/?folder=/workspace" },
+  { id: "kerebron", label: "WYSIWYG Editor", src: "/@kerebron/listdir" },
   { id: "mcp", label: "MCP Config" },
 ];
 

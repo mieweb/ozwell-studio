@@ -59,6 +59,11 @@ RUN rm -f /etc/nginx/sites-enabled/default \
     && cd /workspace && git init \
     && systemctl enable nginx ttyd code-server mcp-proxy
 
+# Kerebron server
+COPY contrib/kerebron-server /opt/kerebron-server
+RUN cd /opt/kerebron-server && npm ci
+RUN systemctl enable kerebron
+
 EXPOSE 3000 6080
 LABEL org.mieweb.opensource-server.services.http.ozwell-studio.port=6080 \
       org.mieweb.opensource-server.services.http.ozwell-studio.hostnameSuffix=studio \
