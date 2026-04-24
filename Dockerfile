@@ -64,6 +64,11 @@ COPY contrib/kerebron-server /opt/kerebron-server
 RUN cd /opt/kerebron-server && npm ci
 RUN systemctl enable kerebron
 
+# Kerebron extension
+COPY contrib/kerebron-extension /opt/kerebron-extension
+RUN cd /opt/kerebron-extension && npm ci && npm run package
+RUN code-server --install-extension /opt/kerebron-extension/kerebron-extension-0.0.1.vsix
+
 EXPOSE 3000 6080
 LABEL org.mieweb.opensource-server.services.http.ozwell-studio.port=6080 \
       org.mieweb.opensource-server.services.http.ozwell-studio.hostnameSuffix=studio \
