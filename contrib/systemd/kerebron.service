@@ -1,0 +1,16 @@
+[Unit]
+Description=kerebron
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+PAMName=login
+WorkingDirectory=/workspace
+ExecStart=/usr/bin/node /opt/kerebron-server/src/main.ts
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
