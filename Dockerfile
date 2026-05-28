@@ -7,6 +7,29 @@ WORKDIR /build
 COPY . .
 RUN npm ci && npm run build
 
+# ── Stage 1b: Build opencode from upstream PR #28326 ───────────
+# PR #28326 adds --base-path support so opencode web can be hosted
+# behind a reverse proxy at /opencode/. Once it merges and ships in
+# a release, drop this stage and switch back to `curl | bash` against
+# the official installer.
+FROM oven/bun:1.3.14 AS opencode-builder
+
+ARG OPENCODE_REPO=https://github.com/fabiovincenzi/opencode
+ARG OPENCODE_REF=feat/base-path-support
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        git ca-certificates python3 build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+RUN git clone --depth=1 --branch "${OPENCODE_REF}" "${OPENCODE_REPO}" .
+RUN bun install --frozen-lockfile
+# --single builds only the current platform; output lands at
+# packages/opencode/dist/opencode-linux-<arch>/bin/opencode
+RUN bun run --cwd packages/opencode build -- --single \
+    && cp "$(find packages/opencode/dist -name opencode -type f | head -1)" /opencode
+
 # ── Stage 2: Production image ──────────────────────────────────
 FROM ghcr.io/mieweb/opensource-server/nodejs:latest
 
@@ -44,6 +67,10 @@ RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/
 RUN python3 -m venv /opt/mcp-proxy \
     && /opt/mcp-proxy/bin/pip install --no-cache-dir mcp-proxy
 
+# OpenCode AI - bundled binary from stage 1b
+COPY --from=opencode-builder /opencode /usr/local/bin/opencode
+RUN chmod +x /usr/local/bin/opencode
+
 COPY --from=builder /build/dist /opt/ozwell-studio/dist/
 COPY contrib/nginx/nginx.conf /etc/nginx/sites-enabled/studio
 COPY contrib/systemd/ /etc/systemd/system/
@@ -57,7 +84,7 @@ COPY contrib/workspace/ /workspace/
 
 RUN rm -f /etc/nginx/sites-enabled/default \
     && cd /workspace && git init \
-    && systemctl enable nginx ttyd code-server mcp-proxy
+    && systemctl enable nginx ttyd code-server mcp-proxy opencode
 
 # Kerebron server
 COPY contrib/kerebron-server /opt/kerebron-server

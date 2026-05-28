@@ -1,0 +1,12 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "mcp": {
+    "tmux": {
+      "type": "remote",
+      "url": "http://127.0.0.1:8000/servers/tmux/mcp",
+      "enabled": true,
+      "oauth": false
+    }
+  }
+}

@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenCode AI - Web interface
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+PAMName=login
+WorkingDirectory=/workspace
+ExecStart=/usr/local/bin/opencode web --hostname 127.0.0.1 --port 4096 --base-path /opencode
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
