@@ -13,9 +13,9 @@ interface TabDef {
 
 const TABS: TabDef[] = [
   { id: "app", label: "Application", src: "/" },
-  { id: "terminal", label: "Terminal", src: "/ttyd/" },
-  { id: "editor", label: "Editor", src: "/code/?folder=/workspace" },
-  { id: "kerebron", label: "WYSIWYG Editor", src: "/@kerebron/listdir" },
+  { id: "terminal", label: "Terminal", src: "/studio/ttyd/" },
+  { id: "editor", label: "Editor", src: "/studio/code/?folder=/workspace" },
+  { id: "kerebron", label: "WYSIWYG Editor", src: "/studio/@kerebron/listdir" },
   { id: "mcp", label: "MCP Config" },
 ];
 
