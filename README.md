@@ -23,7 +23,7 @@ Run it:
 docker run --privileged -p 6080:6080 ghcr.io/mieweb/ozwell-studio:latest
 ```
 
-Open `http://localhost:6080` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
+Open `http://localhost:6080/studio/` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
 
 ## Architecture
 
@@ -31,11 +31,12 @@ The workspace runs as a systemd-managed container. NGINX on port 6080 serves eve
 
 | Path | Upstream | Description |
 |------|----------|-------------|
-| `/` | Static files | Studio dashboard (React app) |
-| `/preview/` | `127.0.0.1:3000` | User's application (prefix stripped) |
-| `/ttyd/` | `127.0.0.1:7681` | Web terminal via ttyd (base-path aware) |
-| `/code/` | `127.0.0.1:8080` | VS Code via code-server (prefix stripped, abs-proxy-base-path) |
-| `/mcp/` | `127.0.0.1:8000` | MCP proxy (prefix stripped) |
+| `/` | `127.0.0.1:3000` | User's application |
+| `/studio/` | Static files | Studio dashboard (React app) |
+| `/studio/ttyd/` | `127.0.0.1:7681` | Web terminal via ttyd (base-path aware) |
+| `/studio/code/` | `127.0.0.1:8080` | VS Code via code-server (prefix stripped, abs-proxy-base-path) |
+| `/studio/mcp/` | `127.0.0.1:8000` | MCP proxy (prefix stripped) |
+| `/studio/@kerebron/` | `127.0.0.1:8787` | Kerebron WYSIWYG editor |
 
 Port 3000 is also exposed directly for the user's application.
 
@@ -45,9 +46,9 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 
 **Studio Dashboard** — A React + Vite app using [@mieweb/ui](https://www.npmjs.com/package/@mieweb/ui) components that embeds the terminal, IDE, and user application in a tabbed interface. The Application tab includes a browser-style navigation bar with back/forward/reload and a read-only URL display.
 
-**ttyd** — Web terminal launching a tmux session (`tmux new-session -A -s main`) so sessions persist across reconnects. Uses `-b /ttyd` base-path so NGINX passes requests through without prefix stripping.
+**ttyd** — Web terminal launching a tmux session (`tmux new-session -A -s main`) so sessions persist across reconnects. Uses `-b /studio/ttyd` base-path so NGINX passes requests through without prefix stripping.
 
-**code-server** — VS Code in the browser. Configured via `/etc/ozwell/code-server/config.yaml` with auth disabled (the orchestrator handles auth), telemetry and update checks off, and `abs-proxy-base-path: /code` so it generates correct URLs behind the reverse proxy. Pre-installed extensions: ESLint, Prettier, Tailwind CSS IntelliSense.
+**code-server** — VS Code in the browser. Configured via `/etc/ozwell/code-server/config.yaml` with auth disabled (the orchestrator handles auth), telemetry and update checks off, and `abs-proxy-base-path: /studio/code` so it generates correct URLs behind the reverse proxy. Pre-installed extensions: ESLint, Prettier, Tailwind CSS IntelliSense.
 
 **MCP Proxy** — Aggregates [Model Context Protocol](https://modelcontextprotocol.io/) servers into a single HTTP/SSE endpoint. Servers are fetched on demand via `npx`/`uvx`:
 
@@ -55,7 +56,7 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 - **tmux** — Control the shared tmux session visible in the Terminal tab ([nickgnd/tmux-mcp](https://github.com/nickgnd/tmux-mcp))
 - **git** — Git operations on `/workspace`
 
-**NGINX** — Single server on port 6080 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/`, `/mcp/`, and `/preview/` prefixes for their respective upstreams. When nothing is running on port 3000, the `/preview/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
+**NGINX** — Single server on port 6080 handling all routing. All studio tooling lives under `/studio/`: the dashboard (static files), ttyd (base-path aware at `/studio/ttyd`), code-server (prefix stripped), MCP proxy (prefix stripped), and Kerebron. The user's application owns `/` (proxied to port 3000). When nothing is running on port 3000, the `/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
 
 ## Repository Structure
 
@@ -100,10 +101,10 @@ docker build -t ozwell-studio .
 docker compose up --build  # Builds image and exposes port 6080
 ```
 
-The container requires `privileged: true` for systemd. Open `http://localhost:6080` to access the studio.
+The container requires `privileged: true` for systemd. Open `http://localhost:6080/studio/` to access the studio.
 
 ## Running Your Application
 
-Bind your application to port 3000 inside the container. It will appear in the **Application** tab at `/preview/`, or access it directly on port 3000.
+Bind your application to port 3000 inside the container. It will appear in the **Application** tab at `/`, or access it directly on port 3000.
 
 The `/workspace` directory is the default working directory for the terminal, IDE, and filesystem MCP server. It is pre-initialized as a git repository with a README.

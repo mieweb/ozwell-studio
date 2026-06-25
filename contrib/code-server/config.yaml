@@ -1,5 +1,5 @@
 bind-addr: 127.0.0.1:8080
-abs-proxy-base-path: /code
+abs-proxy-base-path: /studio/code
 auth: none
 disable-telemetry: true
 disable-update-check: true

@@ -12,10 +12,10 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: "app", label: "Application", src: "/preview/" },
-  { id: "terminal", label: "Terminal", src: "/ttyd/" },
-  { id: "editor", label: "Editor", src: "/code/?folder=/workspace" },
-  { id: "kerebron", label: "WYSIWYG Editor", src: "/@kerebron/listdir" },
+  { id: "app", label: "Application", src: "/" },
+  { id: "terminal", label: "Terminal", src: "/studio/ttyd/" },
+  { id: "editor", label: "Editor", src: "/studio/code/?folder=/workspace" },
+  { id: "kerebron", label: "WYSIWYG Editor", src: "/studio/@kerebron/listdir" },
   { id: "mcp", label: "MCP Config" },
 ];
 
@@ -25,8 +25,8 @@ function tabFromHash(): string {
 }
 
 function PreviewNavBar({ iframeRef }: { iframeRef: HTMLIFrameElement | null }) {
-  const [url, setUrl] = useState("/preview/");
-  const history = useRef<string[]>(["/preview/"]);
+  const [url, setUrl] = useState("/");
+  const history = useRef<string[]>(["/"]);
   const historyIndex = useRef(0);
   const navigating = useRef(false);
 
