@@ -23,7 +23,7 @@ Run it:
 docker run --privileged -p 6080:6080 ghcr.io/mieweb/ozwell-studio:latest
 ```
 
-Open `http://localhost:6080` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
+Open `http://localhost:6080/studio/` to access the studio. The **Application** tab previews your app (serve it on port 3000 inside the container), **Terminal** gives you a shell, and **Editor** opens VS Code.
 
 ## Architecture
 
@@ -31,8 +31,8 @@ The workspace runs as a systemd-managed container. NGINX on port 6080 serves eve
 
 | Path | Upstream | Description |
 |------|----------|-------------|
-| `/` | Static files | Studio dashboard (React app) |
-| `/preview/` | `127.0.0.1:3000` | User's application (prefix stripped) |
+| `/` | `127.0.0.1:3000` | User's application |
+| `/studio/` | Static files | Studio dashboard (React app) |
 | `/ttyd/` | `127.0.0.1:7681` | Web terminal via ttyd (base-path aware) |
 | `/code/` | `127.0.0.1:8080` | VS Code via code-server (prefix stripped, abs-proxy-base-path) |
 | `/mcp/` | `127.0.0.1:8000` | MCP proxy (prefix stripped) |
@@ -55,7 +55,7 @@ An external orchestrator handles authentication, TLS termination, and hostname�
 - **tmux** — Control the shared tmux session visible in the Terminal tab ([nickgnd/tmux-mcp](https://github.com/nickgnd/tmux-mcp))
 - **git** — Git operations on `/workspace`
 
-**NGINX** — Single server on port 6080 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/`, `/mcp/`, and `/preview/` prefixes for their respective upstreams. When nothing is running on port 3000, the `/preview/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
+**NGINX** — Single server on port 6080 handling all routing. Proxies ttyd without prefix stripping (base-path aware), strips `/code/` and `/mcp/` prefixes for their respective upstreams. The user's application is served at `/` (proxied to port 3000) and the studio dashboard at `/studio/`. When nothing is running on port 3000, the `/` route serves a getting-started page. All proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header.
 
 ## Repository Structure
 
@@ -100,10 +100,10 @@ docker build -t ozwell-studio .
 docker compose up --build  # Builds image and exposes port 6080
 ```
 
-The container requires `privileged: true` for systemd. Open `http://localhost:6080` to access the studio.
+The container requires `privileged: true` for systemd. Open `http://localhost:6080/studio/` to access the studio.
 
 ## Running Your Application
 
-Bind your application to port 3000 inside the container. It will appear in the **Application** tab at `/preview/`, or access it directly on port 3000.
+Bind your application to port 3000 inside the container. It will appear in the **Application** tab at `/`, or access it directly on port 3000.
 
 The `/workspace` directory is the default working directory for the terminal, IDE, and filesystem MCP server. It is pre-initialized as a git repository with a README.
