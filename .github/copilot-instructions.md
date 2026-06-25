@@ -25,11 +25,12 @@ NGINX on port 6080 routes all paths:
 
 | Path | Upstream | Notes |
 |------|----------|-------|
-| `/` | Static files from `/opt/ozwell-studio/dist` | Studio dashboard |
-| `/preview/` | `127.0.0.1:3000` | Prefix stripped; fallback page when unavailable |
-| `/ttyd/` | `127.0.0.1:7681` | Base-path aware (no prefix strip) |
-| `/code/` | `127.0.0.1:8080` | Prefix stripped; code-server uses `abs-proxy-base-path` |
-| `/mcp/` | `127.0.0.1:8000` | Prefix stripped |
+| `/studio/` | Static files from `/opt/ozwell-studio/dist` | Studio dashboard |
+| `/studio/ttyd/` | `127.0.0.1:7681` | Base-path aware (no prefix strip) |
+| `/studio/code/` | `127.0.0.1:8080` | Prefix stripped; code-server uses `abs-proxy-base-path` |
+| `/studio/mcp/` | `127.0.0.1:8000` | Prefix stripped |
+| `/studio/@kerebron/` | `127.0.0.1:8787` | Base-path aware (no prefix strip) |
+| `/` | `127.0.0.1:3000` | User app; top-level navigation redirects to `/studio/`, iframe requests pass through. Fallback page when unavailable |
 
 All NGINX proxy blocks use `$http_host` (not `$host`) to preserve the port in the Host header — code-server validates Host against Origin for WebSocket connections.
 
