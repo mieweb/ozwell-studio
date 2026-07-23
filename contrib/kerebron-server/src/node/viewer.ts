@@ -9,6 +9,19 @@ const __dirname = import.meta.dirname;
 
 const MAIN_DIR = '/workspace';
 
+function escapeHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function link(route: string, targetPath: string, label: string): string {
+  return '<a href="' + route + '?path=' + encodeURIComponent(targetPath) + '">' + escapeHtml(label) + '</a><br />\n';
+}
+
 export function install(
   { app, upgradeWebSocket }: { app: Hono; upgradeWebSocket: UpgradeWebSocket },
 ) {
@@ -20,18 +33,18 @@ export function install(
 
     let html = '';
     if (fullpath !== MAIN_DIR) {
-      html += '<a href="/studio/@kerebron/listdir?path=' + path.resolve(fullpath, '..') + '">..</a><br />\n';
+      html += link('/studio/@kerebron/listdir', path.resolve(fullpath, '..'), '..');
     }
 
     const files = await readdir(fullpath, { withFileTypes: true });
     for (const file of files) {
       if (file.isDirectory()) {
-        html += '<a href="/studio/@kerebron/listdir?path=' + fullpath + '/' +file.name +'">' + file.name + '</a><br />\n';
+        html += link('/studio/@kerebron/listdir', fullpath + '/' + file.name, file.name);
       }
     }
     for (const file of files.filter(file => file.name.endsWith('.odt') || file.name.endsWith('.md'))) {
       if (file.isFile()) {
-        html += '<a href="/studio/@kerebron/editor?path=' + fullpath + '/' +file.name +'">' + file.name + '</a><br />\n';
+        html += link('/studio/@kerebron/editor', fullpath + '/' + file.name, file.name);
       }
     }
 
@@ -39,9 +52,10 @@ export function install(
   });
 
   app.get('/studio/@kerebron/file', async (c) => {
-    let html = '';
-
-    const fullpath = path.normalize(c.req.query('path') || '/');
+    const fullpath = path.normalize(c.req.query('path') || MAIN_DIR);
+    if (!(fullpath + '/').startsWith(MAIN_DIR + '/')) {
+      throw new Error('Path outside of MAIN_DIR');
+    }
 
     let mimeType = '';
     const ext = fullpath.split('.').pop()?.toLowerCase();
