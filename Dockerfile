@@ -8,7 +8,7 @@ COPY . .
 RUN npm ci && npm run build
 
 # ── Stage 2: Production image ──────────────────────────────────
-FROM ghcr.io/mieweb/opensource-server/nodejs:latest
+FROM ghcr.io/mieweb/opensource-server/docker-nodejs:latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx python3 python3-venv git ca-certificates \
