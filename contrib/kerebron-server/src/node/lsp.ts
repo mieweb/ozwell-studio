@@ -9,7 +9,7 @@ export function install(
   { app, upgradeWebSocket }: { app: Hono; upgradeWebSocket: UpgradeWebSocket },
 ) {
   app.get(
-    '/@kerebron/lsp/process',
+    '/studio/@kerebron/lsp/process',
     upgradeWebSocket((c) => {
       return proxyProcess(
         'node',
@@ -20,7 +20,7 @@ export function install(
   );
 
   app.get(
-    '/@kerebron/lsp/yaml',
+    '/studio/@kerebron/lsp/yaml',
     upgradeWebSocket((c) => {
       return proxyProcess(
         'npm',
@@ -31,7 +31,7 @@ export function install(
   );
 
   app.get(
-    '/@kerebron/lsp/typescript',
+    '/studio/@kerebron/lsp/typescript',
     upgradeWebSocket((c) => {
       return proxyProcess(
         'npm',

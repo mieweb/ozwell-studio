@@ -11,11 +11,11 @@ const element = document.getElementById('app');
 const protocol = globalThis.location.protocol === 'http:'
   ? 'ws:'
   : 'wss:';
-const yjsUrl = protocol + '//' + globalThis.location.host + '/@kerebron/yjs';
+const yjsUrl = protocol + '//' + globalThis.location.host + '/studio/@kerebron/yjs';
 
 const editor = CoreEditor.create({
   element,
-  assetLoad: createAssetLoad('/@kerebron/wasm'),
+  assetLoad: createAssetLoad('/studio/@kerebron/wasm'),
   editorKits: [
     new AdvancedEditorKit(),
     YjsEditorKit.createFrom(yjsUrl)
@@ -33,7 +33,7 @@ try {
   const params = new URLSearchParams(window.location.search);
   const fileLocation = params.get('path');
 
-  const response = await fetch('/@kerebron/file?path=' + fileLocation);
+  const response = await fetch('/studio/@kerebron/file?path=' + fileLocation);
   const mimeType = response.headers.get('content-type');
   const buffer = await response.bytes();
 
@@ -57,7 +57,7 @@ window.addEventListener('message', async (e) => {
       try {
         const fileLocation = body.uri.path;
 
-        const response = await fetch('/@kerebron/file?path=' + fileLocation);
+        const response = await fetch('/studio/@kerebron/file?path=' + fileLocation);
         const mimeType = response.headers.get('content-type');
         const buffer = await response.bytes();
 

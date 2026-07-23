@@ -8,18 +8,18 @@ export function install(
   { app, upgradeWebSocket }: { app: Hono; upgradeWebSocket: UpgradeWebSocket },
 ) {
   app.get(
-    '/@kerebron/yjs/:room',
+    '/studio/@kerebron/yjs/:room',
     upgradeWebSocket((c) => {
       return yjsAdapter.upgradeWebSocket(c.req.param('room'));
     }),
   );
 
-  app.get('/@kerebron/api/rooms', (c) => {
+  app.get('/studio/@kerebron/api/rooms', (c) => {
     const retVal = yjsAdapter.getRoomNames();
     return c.json(retVal);
   });
 
-  app.post('/@kerebron/api/rooms', (c) => {
+  app.post('/studio/@kerebron/api/rooms', (c) => {
     const roomId = String(Math.floor(100000 / Math.random()));
     yjsAdapter.addRoom(roomId);
     return c.json(roomId);

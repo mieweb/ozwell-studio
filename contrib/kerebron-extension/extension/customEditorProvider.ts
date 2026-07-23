@@ -234,7 +234,7 @@ export class CustomEditorProvider implements vscode.CustomEditorProvider<Kerebro
 				</style>
 			</head>
 			<body>
-		    <iframe id="kerebron-frame" src="/@kerebron/editor"></iframe>
+		    <iframe id="kerebron-frame" src="/studio/@kerebron/editor"></iframe>
         <script>
             const vscode = acquireVsCodeApi();
             const frame = document.getElementById('kerebron-frame');

@@ -81,8 +81,8 @@ export function McpConfig() {
   const showConfig = apiKey || skipped;
 
   const baseUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/mcp`
-    : "http://localhost:6080/mcp";
+    ? `${window.location.origin}/studio/mcp`
+    : "http://localhost:6080/studio/mcp";
 
   const config = useMemo(
     () => FLAVORS[flavor].generate(baseUrl, apiKey),
