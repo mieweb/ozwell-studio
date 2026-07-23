@@ -42,7 +42,7 @@ RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/
       uv-x86_64-unknown-linux-gnu/uv uv-x86_64-unknown-linux-gnu/uvx
 
 RUN python3 -m venv /opt/mcp-proxy \
-    && /opt/mcp-proxy/bin/pip install --no-cache-dir mcp-proxy
+    && /opt/mcp-proxy/bin/pip install --no-cache-dir mcp-proxy==0.12.0
 
 COPY --from=builder /build/dist /opt/ozwell-studio/dist/
 COPY contrib/nginx/nginx.conf /etc/nginx/sites-enabled/studio
