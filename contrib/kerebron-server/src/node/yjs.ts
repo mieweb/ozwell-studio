@@ -20,7 +20,7 @@ export function install(
   });
 
   app.post('/studio/@kerebron/api/rooms', (c) => {
-    const roomId = String(Math.floor(100000 / Math.random()));
+    const roomId = crypto.randomUUID();
     yjsAdapter.addRoom(roomId);
     return c.json(roomId);
   });
