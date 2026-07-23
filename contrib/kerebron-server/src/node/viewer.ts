@@ -2,6 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import * as path from 'node:path';
 
 import type { Hono } from 'hono';
+import { HTTPException } from 'hono/http-exception';
 import type { UpgradeWebSocket } from 'hono/ws';
 import { serveStatic } from '@hono/node-server/serve-static'
 
@@ -28,7 +29,7 @@ export function install(
   app.get('/studio/@kerebron/listdir', async (c) => {
     const fullpath = path.normalize(c.req.query('path') || MAIN_DIR);
     if (!(fullpath + '/').startsWith(MAIN_DIR + '/')) {
-      throw new Error('Path outside of MAIN_DIR');
+      throw new HTTPException(403, { message: 'Path outside of ' + MAIN_DIR });
     }
 
     let html = '';
@@ -54,7 +55,7 @@ export function install(
   app.get('/studio/@kerebron/file', async (c) => {
     const fullpath = path.normalize(c.req.query('path') || MAIN_DIR);
     if (!(fullpath + '/').startsWith(MAIN_DIR + '/')) {
-      throw new Error('Path outside of MAIN_DIR');
+      throw new HTTPException(403, { message: 'Path outside of ' + MAIN_DIR });
     }
 
     let mimeType = '';
@@ -66,7 +67,7 @@ export function install(
     }
 
     if (!mimeType) {
-      throw new Error('Invalid extension');
+      throw new HTTPException(400, { message: 'Invalid extension' });
     }
 
     const data = await readFile(fullpath);
@@ -82,7 +83,7 @@ export function install(
     '/studio/@kerebron/wasm/*',
     serveStatic({
       root: __dirname + '/../../node_modules/@kerebron/wasm/assets',
-      rewriteRequestPath: (path: string) => path.replace(/^\/studio\/@kerebron\/wasm/, '/'),
+      rewriteRequestPath: (requestPath: string) => requestPath.replace(/^\/studio\/@kerebron\/wasm/, '/'),
       mimes: { 'wasm': 'application/wasm' },
     }),
   );
