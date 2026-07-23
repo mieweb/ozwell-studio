@@ -11,11 +11,11 @@ const element = document.getElementById('app');
 const protocol = globalThis.location.protocol === 'http:'
   ? 'ws:'
   : 'wss:';
-const yjsUrl = protocol + '//' + globalThis.location.host + '/@kerebron/yjs';
+const yjsUrl = protocol + '//' + globalThis.location.host + '/studio/@kerebron/yjs';
 
 const editor = CoreEditor.create({
   element,
-  assetLoad: createAssetLoad('/@kerebron/wasm'),
+  assetLoad: createAssetLoad('/studio/@kerebron/wasm'),
   editorKits: [
     new AdvancedEditorKit(),
     YjsEditorKit.createFrom(yjsUrl)
@@ -29,17 +29,27 @@ const user = {
 };
 editor.chain().changeUser(user).run();
 
-try {
-  const params = new URLSearchParams(window.location.search);
-  const fileLocation = params.get('path');
-
-  const response = await fetch('/@kerebron/file?path=' + fileLocation);
+async function loadFile(fileLocation: string) {
+  const response = await fetch(
+    '/studio/@kerebron/file?' + new URLSearchParams({ path: fileLocation }),
+  );
+  if (!response.ok) {
+    throw new Error('Failed to fetch file "' + fileLocation + '": ' + response.status);
+  }
   const mimeType = response.headers.get('content-type');
   const buffer = await response.bytes();
 
   await editor.loadDocument(mimeType, buffer);
   const roomId = fileLocation.replaceAll('/', '__');
   editor.chain().changeRoom(roomId).run();
+}
+
+try {
+  const params = new URLSearchParams(window.location.search);
+  const fileLocation = params.get('path');
+  if (fileLocation) {
+    await loadFile(fileLocation);
+  }
 } catch (err) {
   console.error(err);
 }
@@ -47,23 +57,19 @@ try {
 window.addEventListener('message', async (e) => {
   if (e.source !== window.parent) return;
 
-  const { type, body } = e.data ?? {};
-  if (body.$to !== 'iframe') return;
+  const { type, requestId, body } = e.data ?? {};
+  if (body?.$to !== 'iframe') return;
 
   switch (type) {
     case 'init': {
       // editor.setDocument('application/vnd.oasis.opendocument.text', body.value);
 
       try {
-        const fileLocation = body.uri.path;
-
-        const response = await fetch('/@kerebron/file?path=' + fileLocation);
-        const mimeType = response.headers.get('content-type');
-        const buffer = await response.bytes();
-
-        await editor.loadDocument(mimeType, buffer);
-        const roomId = fileLocation.replaceAll('/', '__');
-        editor.chain().changeRoom(roomId).run();
+        const fileLocation = body.uri?.path;
+        if (!fileLocation) {
+          throw new Error('init message is missing uri.path');
+        }
+        await loadFile(fileLocation);
       } catch (err) {
         console.error(err);
       }

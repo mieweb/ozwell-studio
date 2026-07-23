@@ -169,7 +169,6 @@ export class CustomEditorProvider implements vscode.CustomEditorProvider<Kerebro
 
           this.postMessage(webviewPanel, 'init', {
             uri: document.uri,
-            $to: 'iframe',
             value: document.documentData,
             editable,
           });
@@ -184,15 +183,20 @@ export class CustomEditorProvider implements vscode.CustomEditorProvider<Kerebro
 	private postMessageWithResponse<R = unknown>(panel: vscode.WebviewPanel, type: string, body: any): Promise<R> {
 		const requestId = this._requestId++;
 		const p = new Promise<R>(resolve => this._callbacks.set(requestId, resolve));
-		panel.webview.postMessage({ type, requestId, body });
+		panel.webview.postMessage({ type, requestId, body: { ...body, $to: 'iframe' } });
 		return p;
 	}
 
   private postMessage(panel: vscode.WebviewPanel, type: string, body: any): void {
-		panel.webview.postMessage({ type, body });
+		panel.webview.postMessage({ type, body: { ...body, $to: 'iframe' } });
 	}
 
 	private onMessage(document: KerebronDocument, message: any) {
+		if (message?.type === 'response') {
+			const callback = this._callbacks.get(message.requestId);
+			callback?.(message.body);
+			this._callbacks.delete(message.requestId);
+		}
 	}
 
 	private addNewDoc(document: vscode.TextDocument) {
@@ -234,7 +238,7 @@ export class CustomEditorProvider implements vscode.CustomEditorProvider<Kerebro
 				</style>
 			</head>
 			<body>
-		    <iframe id="kerebron-frame" src="/@kerebron/editor"></iframe>
+		    <iframe id="kerebron-frame" src="/studio/@kerebron/editor"></iframe>
         <script>
             const vscode = acquireVsCodeApi();
             const frame = document.getElementById('kerebron-frame');
@@ -243,7 +247,10 @@ export class CustomEditorProvider implements vscode.CustomEditorProvider<Kerebro
             window.addEventListener('message', (event) => {
               const msg = event.data?.body;
               if (!msg || msg.$to !== 'iframe') return;
-              frame.contentWindow?.postMessage({ type: event.data.type, body: msg }, '*');
+              frame.contentWindow?.postMessage(
+                { type: event.data.type, requestId: event.data.requestId, body: msg },
+                '*'
+              );
             });
 
             // Iframe -> host -> extension

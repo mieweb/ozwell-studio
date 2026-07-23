@@ -2,17 +2,17 @@
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@j0hanz/filesystem-mcp@latest", "/workspace"],
+      "args": ["-y", "@j0hanz/filesystem-mcp@1.15.5", "/workspace"],
       "transportType": "stdio"
     },
     "tmux": {
       "command": "npx",
-      "args": ["-y", "tmux-mcp"],
+      "args": ["-y", "tmux-mcp@0.2.2"],
       "transportType": "stdio"
     },
     "git": {
       "command": "uvx",
-      "args": ["mcp-server-git"],
+      "args": ["mcp-server-git@2026.7.10"],
       "transportType": "stdio"
     }
   }

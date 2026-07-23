@@ -1,0 +1,9 @@
+/*
+ * VS Code theme overrides for the Kerebron editor (menu colors, etc.).
+ *
+ * This file was referenced by index.html in commit e4821c0 ("Modify kerebron
+ * menu colors") but the stylesheet itself was never committed, which made the
+ * Vite dev server fail the whole /studio/@kerebron/editor page with a 500
+ * (postcss-import ENOENT). Kept as a placeholder so the page loads; add the
+ * intended color overrides here.
+ */

@@ -12,7 +12,7 @@ export async function install({ app }: { app: Hono }) {
   const editorDir = __dirname + '/../editor';
 
   const viteDevServer = await createViteServer({
-    base: '/@kerebron/editor',
+    base: '/studio/@kerebron/editor',
     configFile: editorDir + '/vite.config.ts',
     root: editorDir,
     server: {
@@ -27,8 +27,8 @@ export async function install({ app }: { app: Hono }) {
   const addr = proxyServer.httpServer?.address();
 
   if (addr && 'object' === typeof addr) {
-    // devProxyUrls['/@kerebron/editor'] = `http://${addr.address}:${addr.port}`;
-    devProxyUrls['/@kerebron/editor'] = `http://localhost:${addr.port}`;
+    // devProxyUrls['/studio/@kerebron/editor'] = `http://${addr.address}:${addr.port}`;
+    devProxyUrls['/studio/@kerebron/editor'] = `http://localhost:${addr.port}`;
     port = addr.port + 1;
   }
 
