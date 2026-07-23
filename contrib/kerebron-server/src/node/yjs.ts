@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import type { Hono } from 'hono';
 import type { UpgradeWebSocket } from 'hono/ws';
 
@@ -20,7 +22,7 @@ export function install(
   });
 
   app.post('/studio/@kerebron/api/rooms', (c) => {
-    const roomId = crypto.randomUUID();
+    const roomId = randomUUID();
     yjsAdapter.addRoom(roomId);
     return c.json(roomId);
   });
