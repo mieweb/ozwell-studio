@@ -36,6 +36,11 @@ RUN code-server --install-extension GitHub.copilot-chat \
     && code-server --install-extension ms-vscode.cpptools \
     && code-server --install-extension esbenp.prettier-vscode
 
+# Temporary ozzy installation steps
+RUN --mount=type=bind,from=builder,source=/build/contrib,dst=/mnt/contrib \
+    code-server --install-extension /mnt/contrib/ozzy-4.0.4.vsix && \
+    ln -svf /mnt/quick_and_dirty /root/.quick
+
 ARG UV_VERSION=0.11.6
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
     | tar -xzf - --strip-components=1 -C /usr/local/bin \
