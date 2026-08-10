@@ -19,7 +19,7 @@ ADD --chmod=0755 \
     https://github.com/tsl0922/ttyd/releases/download/${TTYD_VERSION}/ttyd.x86_64 \
     /usr/local/bin/ttyd
 
-ARG CODE_SERVER_VERSION=4.115.0
+ARG CODE_SERVER_VERSION=4.131.0
 RUN --mount=type=tmpfs,target=/tmp \
     curl -fsSL -o /tmp/code-server.deb \
       "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb" \
@@ -41,7 +41,7 @@ RUN --mount=type=bind,from=builder,source=/build/contrib,dst=/mnt/contrib \
     code-server --install-extension /mnt/contrib/ozzy-4.0.4.vsix && \
     ln -svf /mnt/quick_and_dirty /root/.quick
 
-ARG UV_VERSION=0.11.6
+ARG UV_VERSION=0.12.3
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
     | tar -xzf - --strip-components=1 -C /usr/local/bin \
       uv-x86_64-unknown-linux-gnu/uv uv-x86_64-unknown-linux-gnu/uvx
