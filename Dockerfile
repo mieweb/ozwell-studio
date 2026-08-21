@@ -41,6 +41,13 @@ RUN --mount=type=bind,from=builder,source=/build/contrib,dst=/mnt/contrib \
     code-server --install-extension /mnt/contrib/ozzy-4.0.4.vsix && \
     ln -svf /mnt/quick_and_dirty /root/.quick
 
+# Ededitit installation
+ARG EDEDITIT_VERSION=0.0.5
+RUN curl -fsSL "https://github.com/mieweb/edEditIt/releases/download/v${EDEDITIT_VERSION}/ededitit-${EDEDITIT_VERSION}.vsix" \
+    -o /usr/local/ededitit-${EDEDITIT_VERSION}.vsix
+RUN --mount=type=bind,from=builder,source=/build/contrib,dst=/mnt/contrib \
+    code-server --install-extension /usr/local/ededitit-${EDEDITIT_VERSION}.vsix
+
 ARG UV_VERSION=0.12.3
 RUN curl -fsSL "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
     | tar -xzf - --strip-components=1 -C /usr/local/bin \
@@ -68,11 +75,6 @@ RUN rm -f /etc/nginx/sites-enabled/default \
 COPY contrib/kerebron-server /opt/kerebron-server
 RUN cd /opt/kerebron-server && npm ci
 RUN systemctl enable kerebron
-
-# Kerebron extension
-COPY contrib/kerebron-extension /opt/kerebron-extension
-RUN cd /opt/kerebron-extension && npm ci && npm run package
-RUN code-server --install-extension /opt/kerebron-extension/kerebron-extension-0.0.1.vsix
 
 EXPOSE 3000 6080
 LABEL org.mieweb.opensource-server.services.http.ozwell-studio.port=6080 \
