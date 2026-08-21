@@ -19,7 +19,7 @@ ADD --chmod=0755 \
     https://github.com/tsl0922/ttyd/releases/download/${TTYD_VERSION}/ttyd.x86_64 \
     /usr/local/bin/ttyd
 
-ARG CODE_SERVER_VERSION=4.131.0
+ARG CODE_SERVER_VERSION=4.132.0
 RUN --mount=type=tmpfs,target=/tmp \
     curl -fsSL -o /tmp/code-server.deb \
       "https://github.com/coder/code-server/releases/download/v${CODE_SERVER_VERSION}/code-server_${CODE_SERVER_VERSION}_amd64.deb" \
